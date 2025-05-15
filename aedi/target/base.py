@@ -154,7 +154,9 @@ class BuildTarget(Target):
                 variable = line[0:equal_pos]
 
                 if variable in known_variables:
-                    if line[equal_pos + 1] == '/':
+                    value = line[equal_pos + 1:]
+
+                    if value and (value.startswith('/') or value.startswith('"/')):
                         # Absolute path found, replace to variable value
                         value = known_variables[variable]
 
