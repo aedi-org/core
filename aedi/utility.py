@@ -148,34 +148,15 @@ def hardcopy(src: Path, dst: Path) -> os.stat_result:
     return hardlink_or_copy(dst_stat)
 
 
-def _hardlink_directory(src_path: Path, dst_path: Path, seen_inos: set[int]):
+def _hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: typing.Union[set[int], None]):
     for entry in src_path.iterdir():
         dst_subpath = dst_path / entry.name
         if entry.is_dir():
             os.makedirs(dst_subpath, exist_ok=True)
-            _hardlink_directory(entry, dst_subpath, seen_inos)
+            _hardcopy_directory(entry, dst_subpath, seen_inos)
         else:
-            src_ino = os.stat(entry).st_ino
-            dst_ino = None
-
-            need_link = False
-            need_unlink = False
-
-            try:
-                dst_ino = os.stat(dst_subpath, follow_symlinks=False).st_ino
-            except FileNotFoundError:
-                need_link = True
-
-            if not need_link and src_ino != dst_ino:
-                need_link = need_unlink = True
-
-            if need_link:
-                if need_unlink:
-                    os.unlink(dst_subpath)
-
-                os.link(entry, dst_subpath)
-
-            seen_inos.add(src_ino)
+            ino = hardcopy(entry, dst_subpath).st_ino
+            seen_inos.add(ino)
 
 
 def _unlink_missing(path: Path, seen_inos: set[int]):
@@ -187,11 +168,11 @@ def _unlink_missing(path: Path, seen_inos: set[int]):
             os.unlink(path)
 
 
-def hardlink_directories(src_paths: typing.Sequence[Path], dst_path: Path, cleanup=True):
+def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, cleanup=True):
     seen_inos: set[int] = set()
 
     for src_path in src_paths:
-        _hardlink_directory(src_path, dst_path, seen_inos)
+        _hardcopy_directory(src_path, dst_path, seen_inos)
 
     if cleanup:
         for path in dst_path.iterdir():

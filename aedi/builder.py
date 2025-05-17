@@ -35,7 +35,7 @@ from .utility import (
     CaseInsensitiveDict,
     CommandLineOptions,
     TargetPlatform,
-    hardlink_directories,
+    hardcopy_directories,
 )
 
 _MACHO_MAGIC = b'\xcf\xfa\xed\xfe'
@@ -405,7 +405,7 @@ class Builder(object):
         if core_deps_path != deps_path:
             entries += list_dir(deps_path)
 
-        hardlink_directories(entries, prefix_path)
+        hardcopy_directories(entries, prefix_path)
 
     def _detect_target(self):
         for name, target in self._targets.items():
