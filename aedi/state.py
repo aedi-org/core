@@ -27,7 +27,7 @@ import urllib.request
 from pathlib import Path
 
 from .packaging.version import Version as StrictVersion
-from .utility import CommandLineOptions
+from .utility import CommandLineOptions, apply_unified_diff
 
 
 class BuildState:
@@ -251,28 +251,7 @@ class BuildState:
         if not patch_path.exists():
             patch_path = self.core_patch_path / patch_filename
 
-        assert patch_path.exists()
-
-        args = ['/usr/bin/patch', '--strip=1', f'--input={patch_path}']
-        dry_run_args = args + ['--dry-run', '--force']
-
-        def dry_run():
-            return subprocess.run(dry_run_args, cwd=extract_path, env=self.environment,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
-
-        # Try to apply patch without writing changes to disk
-        if dry_run() == 1:
-            # Patch cannot be applied, change direction to check if it's already applied
-            dry_run_args.append('--reverse')
-
-            if dry_run() == 0:
-                return  # patch is already applied
-            else:
-                # Direct and reversed patch applications failed, something is wrong with it
-                raise RuntimeError(f'Patch {patch} could not be applied')
-
-        # Patch wasn't applied yet, do it now
-        subprocess.run(args, check=True, cwd=extract_path, env=self.environment)
+        apply_unified_diff(patch_path, extract_path, self.environment)
 
     def run_pkg_config(self, *args) -> str:
         os.makedirs(self.build_path, exist_ok=True)

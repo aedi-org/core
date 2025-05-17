@@ -19,6 +19,7 @@
 import collections.abc
 import os
 import shutil
+import subprocess
 import typing
 from pathlib import Path
 
@@ -181,6 +182,32 @@ def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, clean
             _unlink_missing(path, seen_inos)
 
         remove_empty_directories(dst_path)
+
+
+def apply_unified_diff(diff_path: Path, work_path: Path, environment: dict = os.environ):
+    if not diff_path.exists():
+        raise FileNotFoundError(f'Unified diff {diff_path} was not found')
+
+    args = ['/usr/bin/patch', '--strip=1', f'--input={diff_path}']
+    dry_run_args = args + ['--dry-run', '--force']
+
+    def dry_run():
+        return subprocess.run(dry_run_args, cwd=work_path, env=environment,
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
+
+    # Try to apply patch without writing changes to disk
+    if dry_run() == 1:
+        # Patch cannot be applied, change direction to check if it's already applied
+        dry_run_args.append('--reverse')
+
+        if dry_run() == 0:
+            return  # patch is already applied
+        else:
+            # Direct and reversed patch applications failed, something is wrong with it
+            raise RuntimeError(f'Unified diff {diff_path} could not be applied')
+
+    # Patch wasn't applied yet, do it now
+    subprocess.run(args, check=True, cwd=work_path, env=environment)
 
 
 # Case insensitive dictionary class from
