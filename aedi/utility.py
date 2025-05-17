@@ -156,7 +156,9 @@ def _hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: typing.Union[
             _hardcopy_directory(entry, dst_subpath, seen_inos)
         else:
             ino = hardcopy(entry, dst_subpath).st_ino
-            seen_inos.add(ino)
+
+            if seen_inos is not None:
+                seen_inos.add(ino)
 
 
 def _unlink_missing(path: Path, seen_inos: set[int]):
@@ -169,7 +171,7 @@ def _unlink_missing(path: Path, seen_inos: set[int]):
 
 
 def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, cleanup=True):
-    seen_inos: set[int] = set()
+    seen_inos = set() if cleanup else None
 
     for src_path in src_paths:
         _hardcopy_directory(src_path, dst_path, seen_inos)
