@@ -27,7 +27,7 @@ from pathlib import Path
 from platform import machine
 
 from ..state import BuildState
-from ..utility import CommandLineOptions, symlink_directory
+from ..utility import CommandLineOptions, hardcopy, symlink_directory
 
 
 class Target:
@@ -489,6 +489,19 @@ class CMakeTarget(BuildTarget):
         for module_path in module_paths:
             if not probe_modules or module_path.exists():
                 self.update_text_file(module_path, _keep_target)
+
+    @staticmethod
+    def hardcopy_xcode_deps(state, *deps):
+        configs = ('Debug', 'MinSizeRel', 'RelWithDebInfo', 'Release')
+
+        for config in configs:
+            os.makedirs(state.build_path / config, exist_ok=True)
+
+        for dep in deps:
+            for dylib in state.lib_path.glob(f'lib{dep}*.dylib'):
+                for config in configs:
+                    dest = state.build_path / config / dylib.name
+                    hardcopy(dylib, dest)
 
 
 class ConfigureMakeDependencyTarget(ConfigureMakeTarget):
