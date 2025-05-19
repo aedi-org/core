@@ -64,6 +64,9 @@ class TestDepsTarget(base.BuildTarget):
 
         test_path = state.root_path / 'test'
 
+        if not test_path.exists():
+            return
+
         for entry in test_path.iterdir():
             if not entry.name.endswith('.cpp'):
                 continue
