@@ -149,12 +149,12 @@ def hardcopy(src: Path, dst: Path) -> os.stat_result:
     return hardlink_or_copy(dst_stat)
 
 
-def _hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: typing.Union[set[int], None]):
+def hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: set[int] = None):
     for entry in src_path.iterdir():
         dst_subpath = dst_path / entry.name
         if entry.is_dir():
             os.makedirs(dst_subpath, exist_ok=True)
-            _hardcopy_directory(entry, dst_subpath, seen_inos)
+            hardcopy_directory(entry, dst_subpath, seen_inos)
         else:
             ino = hardcopy(entry, dst_subpath).st_ino
 
@@ -175,7 +175,7 @@ def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, clean
     seen_inos = set() if cleanup else None
 
     for src_path in src_paths:
-        _hardcopy_directory(src_path, dst_path, seen_inos)
+        hardcopy_directory(src_path, dst_path, seen_inos)
 
     if cleanup:
         for path in dst_path.iterdir():
