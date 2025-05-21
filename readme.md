@@ -36,6 +36,17 @@ Xcode 12.2 or newer is required in order to build universal binaries. Launch Xco
 * `source` directory stores targets source code, customizable with `--source-path` command line option
 * `temp` directory stores temporary files, customizable with `--temp-path` command line option
 
+## Projects
+
+* [games-macos-deps](https://github.com/aedi-org/games-macos-deps), games libraries and tools
+* [misc-macos-deps](https://github.com/aedi-org/misc-macos-deps), miscellaneous libraries and tools
+* [rfreq-macos-deps](https://github.com/aedi-org/rfreq-macos-deps), radio frequency libraries and tools
+* [zdoom-macos-deps](https://github.com/ZDoom/zdoom-macos-deps), *ZDoom binary dependencies
+
 ## Previous development
 
 The initial development of `aedi` Python module was performed in [zdoom-macos-deps](https://github.com/ZDoom/zdoom-macos-deps) repository. The last commit before migration to Git submodule usage was [9af10bc](https://github.com/ZDoom/zdoom-macos-deps/commit/9af10bcbcd2a3e734866714803eb098033cc1217).
+
+## Attributions
+
+Organization icon is one of [Build icons](https://www.flaticon.com/free-icons/build) created by [Smashicons](https://www.flaticon.com/authors/smashicons) and hosted by [Flaticon](https://www.flaticon.com).
