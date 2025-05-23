@@ -180,21 +180,6 @@ class BuildTarget(Target):
         BuildTarget._update_variables_file(path, r'$(cd "${0%/*}/.."; pwd)', processor)
 
     def update_pc_files(self, state: BuildState):
-        # install_path = state.install_path
-        # includedir = '${includedir}'
-        # libdir = '${libdir}'
-        # prefix = '${prefix}'
-        #
-        # replacements = (
-        #     # Order of replacements is important, prefix subdirectories before prefix itself
-        #     (str(state.include_path), includedir),
-        #     (str(install_path / 'include'), includedir),
-        #     (str(state.lib_path), libdir),
-        #     (str(install_path / 'lib'), libdir),
-        #     (str(state.prefix_path), prefix),
-        #     (str(install_path), prefix),
-        # )
-
         prefix = 'prefix='
         install_path = str(state.install_path)
         prefix_path = str(state.prefix_path)
@@ -202,9 +187,6 @@ class BuildTarget(Target):
 
         def processor(line: str) -> str:
             line = self._process_pkg_config(pc_file, line)
-
-            # for replacement in replacements:
-            #     line = line.replace(replacement[0], replacement[1])
 
             if line.startswith(prefix):
                 line = prefix + '\n'
@@ -215,13 +197,8 @@ class BuildTarget(Target):
 
             return line
 
-        for root, _, files in os.walk(state.install_path, followlinks=True):
-            for filename in files:
-                if filename.endswith('.pc'):
-                    # file_path = Path(root) / filename
-                    # BuildTarget._update_variables_file(file_path, '', processor, quotes=False)
-                    pc_file = Path(root) / filename
-                    self.update_text_file(pc_file, processor)
+        for pc_file in state.install_path.glob('**/*.pc'):
+            self.update_text_file(pc_file, processor)
 
     @staticmethod
     def _process_pkg_config(pcfile: Path, line: str) -> str:
