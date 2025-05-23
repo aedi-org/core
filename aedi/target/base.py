@@ -206,7 +206,7 @@ class BuildTarget(Target):
         self.update_variable_files(state, '**/*.pc', '', self._process_pkg_config)
 
     def update_config_scripts(self, state: BuildState):
-        self.update_variable_files(state, '**/*-config', '"$(cd "${0%/*}/.."; pwd)"')
+        self.update_variable_files(state, '**/*-config', '$(cd "${0%/*}/.."; pwd)')
 
     @staticmethod
     def _process_pkg_config(pcfile: Path, line: str) -> str:
