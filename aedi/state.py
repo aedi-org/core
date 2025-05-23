@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import datetime
 import hashlib
 import os
 import re
@@ -66,6 +67,7 @@ class BuildState:
         self.arguments = None
         self.environment = os.environ.copy()
         self.options = CommandLineOptions()
+        self.build_datetime = None
 
     def architecture(self) -> str:
         return self.platform.architecture if self.platform else ''
@@ -301,3 +303,6 @@ class BuildState:
     def delete_install_directory(self):
         if not self.xcode and self.install_path.exists():
             shutil.rmtree(self.install_path)
+
+    def set_build_datetime(self, year: int, month: int, day: int, hour: int = 0, minute: int = 0, second: int = 0):
+        self.build_datetime = datetime.datetime(year, month, day, hour, minute, second, tzinfo=datetime.timezone.utc)

@@ -86,6 +86,9 @@ class BuildTarget(Target):
         ])
         env['PYTHONPATH'] = str(state.lib_path / 'python')
 
+        if state.build_datetime:
+            env['SOURCE_DATE_EPOCH'] = str(int(state.build_datetime.timestamp()))
+
         if state.xcode:
             return
 
