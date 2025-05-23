@@ -180,14 +180,15 @@ class BuildTarget(Target):
     def update_config_script(path: Path, processor: typing.Optional[typing.Callable] = None):
         BuildTarget._update_variables_file(path, r'$(cd "${0%/*}/.."; pwd)', processor)
 
-    def update_variable_files(self, state: BuildState, glob_pattern: str, prefix_value: str):
+    def update_variable_files(self, state: BuildState, glob_pattern: str, prefix_value: str,
+                              processor: typing.Optional[typing.Callable] = None):
         prefix = 'prefix='
         install_path = str(state.install_path)
         prefix_path = str(state.prefix_path)
-        pc_file = Path()
+        variable_file = Path()
 
-        def processor(line: str) -> str:
-            line = self._process_pkg_config(pc_file, line)
+        def process(line: str) -> str:
+            line = processor(variable_file, line) if processor else line
 
             if line.startswith(prefix):
                 line = f'{prefix}{prefix_value}\n'
@@ -198,11 +199,11 @@ class BuildTarget(Target):
 
             return line
 
-        for pc_file in state.install_path.glob(glob_pattern):
-            self.update_text_file(pc_file, processor)
+        for variable_file in state.install_path.glob(glob_pattern):
+            self.update_text_file(variable_file, process)
 
     def update_pc_files(self, state: BuildState):
-        self.update_variable_files(state, '**/*.pc', '')
+        self.update_variable_files(state, '**/*.pc', '', self._process_pkg_config)
 
     def update_config_scripts(self, state: BuildState):
         self.update_variable_files(state, '**/*-config', '"$(cd "${0%/*}/.."; pwd)"')
