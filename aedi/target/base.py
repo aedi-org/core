@@ -115,6 +115,7 @@ class BuildTarget(Target):
         subprocess.run(args, check=True, cwd=state.build_path, env=state.environment)
 
         self.update_pc_files(state)
+        self.update_config_scripts(state)
 
     @staticmethod
     def update_text_file(path: Path, processor: typing.Optional[typing.Callable] = None):
@@ -179,7 +180,7 @@ class BuildTarget(Target):
     def update_config_script(path: Path, processor: typing.Optional[typing.Callable] = None):
         BuildTarget._update_variables_file(path, r'$(cd "${0%/*}/.."; pwd)', processor)
 
-    def update_pc_files(self, state: BuildState):
+    def update_variable_files(self, state: BuildState, glob_pattern: str, prefix_value: str):
         prefix = 'prefix='
         install_path = str(state.install_path)
         prefix_path = str(state.prefix_path)
@@ -189,7 +190,7 @@ class BuildTarget(Target):
             line = self._process_pkg_config(pc_file, line)
 
             if line.startswith(prefix):
-                line = prefix + '\n'
+                line = f'{prefix}{prefix_value}\n'
             elif install_path in line:
                 line = line.replace(install_path, '${prefix}')
             elif prefix_path in line:
@@ -197,8 +198,14 @@ class BuildTarget(Target):
 
             return line
 
-        for pc_file in state.install_path.glob('**/*.pc'):
+        for pc_file in state.install_path.glob(glob_pattern):
             self.update_text_file(pc_file, processor)
+
+    def update_pc_files(self, state: BuildState):
+        self.update_variable_files(state, '**/*.pc', '')
+
+    def update_config_scripts(self, state: BuildState):
+        self.update_variable_files(state, '**/*-config', '"$(cd "${0%/*}/.."; pwd)"')
 
     @staticmethod
     def _process_pkg_config(pcfile: Path, line: str) -> str:
