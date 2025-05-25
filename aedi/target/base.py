@@ -115,6 +115,7 @@ class BuildTarget(Target):
         subprocess.run(args, check=True, cwd=state.build_path, env=state.environment)
 
         self.update_pc_files(state)
+        self.update_config_scripts(state)
 
     @staticmethod
     def update_text_file(path: Path, processor: typing.Optional[typing.Callable] = None):
@@ -139,75 +140,33 @@ class BuildTarget(Target):
 
         os.utime(path, (file_time, file_time))
 
-    @staticmethod
-    def _update_variables_file(path: Path, prefix_value: str,
-                               processor: typing.Optional[typing.Callable] = None, quotes: bool = True):
-        known_variables = {
-            'prefix': prefix_value,
-            'exec_prefix': '${prefix}',
-            'includedir': '${prefix}/include',
-            'libdir': '${exec_prefix}/lib'
-        }
+    def update_variable_files(self, state: BuildState, glob_pattern: str, prefix_value: str,
+                              processor: typing.Optional[typing.Callable] = None):
+        prefix = 'prefix='
+        install_path = str(state.install_path)
+        prefix_path = str(state.prefix_path)
+        variable_file = Path()
 
-        def patch_proc(line: str) -> str:
-            equal_pos = line.find('=')
-            patched_line = line
+        def process(line: str) -> str:
+            line = processor(variable_file, line) if processor else line
 
-            if 0 < equal_pos < len(line) - 1:
-                variable = line[0:equal_pos]
-
-                if variable in known_variables:
-                    value = line[equal_pos + 1:]
-
-                    if value and (value.startswith('/') or value.startswith('"/')):
-                        # Absolute path found, replace to variable value
-                        value = known_variables[variable]
-
-                        if quotes:
-                            value = f'"{value}"'
-
-                        patched_line = f'{variable}={value}\n'
-
-            if processor:
-                patched_line = processor(path, patched_line)
-
-            return patched_line
-
-        BuildTarget.update_text_file(path, patch_proc)
-
-    @staticmethod
-    def update_config_script(path: Path, processor: typing.Optional[typing.Callable] = None):
-        BuildTarget._update_variables_file(path, r'$(cd "${0%/*}/.."; pwd)', processor)
-
-    def update_pc_files(self, state: BuildState):
-        install_path = state.install_path
-        includedir = '${includedir}'
-        libdir = '${libdir}'
-        prefix = '${prefix}'
-
-        replacements = (
-            # Order of replacements is important, prefix subdirectories before prefix itself
-            (str(state.include_path), includedir),
-            (str(install_path / 'include'), includedir),
-            (str(state.lib_path), libdir),
-            (str(install_path / 'lib'), libdir),
-            (str(state.prefix_path), prefix),
-            (str(install_path), prefix),
-        )
-
-        def processor(pcfile: Path, line: str) -> str:
-            line = self._process_pkg_config(pcfile, line)
-
-            for replacement in replacements:
-                line = line.replace(replacement[0], replacement[1])
+            if line.startswith(prefix):
+                line = f'{prefix}{prefix_value}\n'
+            elif install_path in line:
+                line = line.replace(install_path, '${prefix}')
+            elif prefix_path in line:
+                line = line.replace(prefix_path, '${prefix}')
 
             return line
 
-        for root, _, files in os.walk(state.install_path, followlinks=True):
-            for filename in files:
-                if filename.endswith('.pc'):
-                    file_path = Path(root) / filename
-                    BuildTarget._update_variables_file(file_path, '', processor, quotes=False)
+        for variable_file in state.install_path.glob(glob_pattern):
+            self.update_text_file(variable_file, process)
+
+    def update_pc_files(self, state: BuildState):
+        self.update_variable_files(state, '**/*.pc', '', self._process_pkg_config)
+
+    def update_config_scripts(self, state: BuildState):
+        self.update_variable_files(state, '**/*-config', '$(cd "${0%/*}/.."; pwd)')
 
     @staticmethod
     def _process_pkg_config(pcfile: Path, line: str) -> str:
