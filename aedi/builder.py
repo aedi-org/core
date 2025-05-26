@@ -259,17 +259,18 @@ class Builder(object):
             print(f'{action} {version}')
 
         if target.multi_platform and not state.xcode:
-            self._build_multiple_platforms(target)
+            self._build_multiple_platforms()
         else:
-            self._build(target)
+            self._build()
 
         self._sign_outputs()
 
-    def _build(self, target: Target):
+    def _build(self):
         state = self._state
         state.environment = self._environment.copy()
         state.options = CommandLineOptions()
 
+        target = self._target
         target.configure(state)
         target.build(state)
         target.post_build(state)
@@ -277,7 +278,8 @@ class Builder(object):
         if state.install_path.exists():
             MachOFixer(state).run()
 
-    def _build_multiple_platforms(self, target: Target):
+    def _build_multiple_platforms(self):
+        target = self._target
         assert target.multi_platform
 
         state = self._state
@@ -298,7 +300,7 @@ class Builder(object):
             state.install_path = base_build_path / ('install_' + platform.architecture)
             state.delete_install_directory()
 
-            self._build(target)
+            self._build()
 
             install_paths.append(state.install_path)
 
