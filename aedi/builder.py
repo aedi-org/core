@@ -86,9 +86,9 @@ class MachOFixer:
 
     def _fix_file(self, path: Path):
         with open(path, 'rb') as f:
-            header = f.read(8)
+            header = f.read(4)
 
-        if header[:4] != _MACHO_MAGIC:
+        if header != _MACHO_MAGIC:
             return
 
         otool_args = ('otool', '-l', path)
