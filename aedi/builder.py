@@ -173,9 +173,6 @@ class Builder(object):
             if target != self._target:
                 target.initialize(state)
 
-        del self._targets
-        del self.targets
-
         if arguments.build_path:
             state.build_path = Path(arguments.build_path).absolute()
         else:
@@ -253,6 +250,7 @@ class Builder(object):
         state.delete_install_directory()
 
         self._create_prefix_directory()
+        self._build_prerequisites()
 
         if version := state.source_version():
             action = 'Generating' if state.xcode else 'Building'
@@ -264,6 +262,28 @@ class Builder(object):
             self._build()
 
         self._sign_outputs()
+
+    def _build_prerequisites(self):
+        target = self._target
+
+        if not target.prerequisites:
+            return
+
+        deps_path = self._state.deps_path
+        need_update_prefix = False
+
+        for prerequisite in target.prerequisites:
+            if (deps_path / prerequisite).exists():
+                continue
+
+            prerequisite_builder = Builder()
+            prerequisite_builder.targets = self.targets
+            prerequisite_builder.run([f'--target={prerequisite}'])
+
+            need_update_prefix = True
+
+        if need_update_prefix:
+            self._create_prefix_directory()
 
     def _build(self):
         state = self._state

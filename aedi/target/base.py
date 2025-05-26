@@ -37,6 +37,7 @@ class Target:
     def __init__(self, name=None):
         self.name = name
         self.destination = self.DESTINATION_DEPS
+        self.prerequisites = ()
 
         self.multi_platform = False
         self.unsupported_architectures = ()
