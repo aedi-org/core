@@ -263,6 +263,8 @@ class Builder(object):
         else:
             self._build(target)
 
+        self._sign_outputs()
+
     def _build(self, target: Target):
         state = self._state
         state.environment = self._environment.copy()
@@ -388,6 +390,18 @@ class Builder(object):
 
         if not missing_files_only:
             self._merge_missing_files(src_paths, dst_path)
+
+    def _sign_outputs(self):
+        target = self._target
+
+        if target.destination != Target.DESTINATION_OUTPUT:
+            return
+
+        state = self._state
+
+        for output in target.outputs:
+            sign_args = ('codesign', '--sign', '-', '--deep', '--force', output)
+            subprocess.run(sign_args, check=True, cwd=state.install_path, env=state.environment)
 
     def _create_prefix_directory(self):
         state = self._state
