@@ -136,10 +136,10 @@ def hardcopy(src: Path, dst: Path) -> os.stat_result:
     except FileNotFoundError:
         return hardlink_or_copy(dst.parent.stat())
 
-    is_samefile = (os.path.samestat(src_stat, dst_stat) or
-                   (src_stat.st_dev != dst_stat.st_dev
-                    and src_stat.st_mtime == dst_stat.st_mtime
-                    and src_stat.st_size == dst_stat.st_size))
+    is_samefile = (os.path.samestat(src_stat, dst_stat)
+                   or (src_stat.st_dev != dst_stat.st_dev
+                       and src_stat.st_mtime == dst_stat.st_mtime
+                       and src_stat.st_size == dst_stat.st_size))
 
     if is_samefile:
         return dst_stat
