@@ -149,7 +149,7 @@ def hardcopy(src: Path, dst: Path) -> os.stat_result:
     return hardlink_or_copy(dst_stat)
 
 
-def hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: set[int] = None):
+def hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: typing.Optional[set[int]] = None):
     for entry in src_path.iterdir():
         dst_subpath = dst_path / entry.name
         if entry.is_dir():
@@ -184,7 +184,7 @@ def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, clean
         remove_empty_directories(dst_path)
 
 
-def apply_unified_diff(diff_path: Path, work_path: Path, environment: dict = os.environ):
+def apply_unified_diff(diff_path: Path, work_path: Path, environment: typing.Mapping = os.environ):
     if not diff_path.exists():
         raise FileNotFoundError(f'Unified diff {diff_path} was not found')
 
