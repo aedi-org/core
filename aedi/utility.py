@@ -172,16 +172,19 @@ def _unlink_missing(path: Path, seen_inos: set[int]):
 
 
 def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, cleanup=True):
-    seen_inos = set() if cleanup else None
-
-    for src_path in src_paths:
-        hardcopy_directory(src_path, dst_path, seen_inos)
-
     if cleanup:
+        seen_inos: set[int] = set()
+
+        for src_path in src_paths:
+            hardcopy_directory(src_path, dst_path, seen_inos)
+
         for path in dst_path.iterdir():
             _unlink_missing(path, seen_inos)
 
         remove_empty_directories(dst_path)
+    else:
+        for src_path in src_paths:
+            hardcopy_directory(src_path, dst_path)
 
 
 def apply_unified_diff(diff_path: Path, work_path: Path, environment: typing.Mapping = os.environ):
