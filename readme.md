@@ -1,5 +1,9 @@
 # Core module to build various libraries and tools for macOS
 
+[![Build Targets](https://github.com/aedi-org/core/actions/workflows/build.yml/badge.svg)](https://github.com/aedi-org/core/actions/workflows/build.yml)
+[![Lint Code](https://github.com/aedi-org/core/actions/workflows/lint.yml/badge.svg)](https://github.com/aedi-org/core/actions/workflows/lint.yml)
+[![Test Libraries](https://github.com/aedi-org/core/actions/workflows/test.yml/badge.svg)](https://github.com/aedi-org/core/actions/workflows/test.yml)
+
 ## Usage
 
 Download source code, and build a target
