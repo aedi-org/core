@@ -195,7 +195,7 @@ class Builder(object):
     def _populate_platforms(self, arguments):
         state = self._state
 
-        def adjust_sdk_path(path: str) -> Path:
+        def adjust_sdk_path(path: str) -> typing.Union[Path, None]:
             if path:
                 return Path(path).absolute()
 

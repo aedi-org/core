@@ -75,10 +75,10 @@ class BuildState:
     def host(self) -> str:
         return self.platform.host if self.platform else ''
 
-    def os_version(self) -> StrictVersion:
+    def os_version(self) -> typing.Union[StrictVersion, None]:
         return self.platform.os_version if self.platform else None
 
-    def sdk_path(self) -> Path:
+    def sdk_path(self) -> typing.Union[Path, None]:
         return self.platform.sdk_path if self.platform else None
 
     def sdk_version(self) -> typing.Union[StrictVersion, None]:
@@ -88,10 +88,10 @@ class BuildState:
 
         return None
 
-    def c_compiler(self) -> Path:
+    def c_compiler(self) -> typing.Union[Path, None]:
         return self.platform.c_compiler if self.platform else None
 
-    def cxx_compiler(self) -> Path:
+    def cxx_compiler(self) -> typing.Union[Path, None]:
         return self.platform.cxx_compiler if self.platform else None
 
     def compiler_flags(self) -> str:
