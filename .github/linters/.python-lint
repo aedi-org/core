@@ -1,4 +1,4 @@
-[MAIN]
+[MASTER]
 ignore=packaging
 
 [MESSAGES CONTROL]
@@ -6,7 +6,8 @@ ignore=packaging
 # C0115: Missing class docstring (missing-class-docstring)
 # C0116: Missing function or method docstring (missing-function-docstring)
 # C0301: Line too long (.../100) (line-too-long)
+# R0902: Too many instance attributes (.../7) (too-many-instance-attributes)
 # R0903: Too few public methods (.../2) (too-few-public-methods)
 # R0913: Too many arguments (.../5) (too-many-arguments)
 # R0917: Too many positional arguments (.../5) (too-many-positional-arguments)
-disable=C0114, C0115, C0116, C0301, R0903, R0917
+disable=C0114, C0115, C0116, C0301, R0902, R0903, R0913, R0917
