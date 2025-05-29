@@ -1,7 +1,12 @@
+[MAIN]
+ignore-paths=aedi/packaging
+
 [MESSAGES CONTROL]
 # C0114: Missing module docstring (missing-module-docstring)
 # C0115: Missing class docstring (missing-class-docstring)
 # C0116: Missing function or method docstring (missing-function-docstring)
 # C0301: Line too long (.../100) (line-too-long)
-disable=C0114, C0115, C0116, C0301
-ignore=packaging
+# R0903: Too few public methods (.../2) (too-few-public-methods)
+# R0913: Too many arguments (.../5) (too-many-arguments)
+# R0917: Too many positional arguments (.../5) (too-many-positional-arguments)
+disable=C0114, C0115, C0116, C0301, R0903, R0917
