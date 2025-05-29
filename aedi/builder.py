@@ -134,6 +134,12 @@ class Builder(object):
     def __init__(self):
         self.argparser = argparse.ArgumentParser()
         self.targets = targets()
+        
+        self._environment = None
+        self._platforms = None
+        self._state = None
+        self._target = None
+        self._targets = None
 
     def _create_state(self, args: list):
         self._targets = CaseInsensitiveDict({target.name: target for target in self.targets})
