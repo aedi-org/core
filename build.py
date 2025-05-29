@@ -30,7 +30,7 @@ if sys.version_info < _min_version:
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 sys.dont_write_bytecode = True
 
-# pylint: wrong-import-position
+# pylint: disable=wrong-import-position
 from aedi import Builder  # noqa: E402
 
 if __name__ == '__main__':

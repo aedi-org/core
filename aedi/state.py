@@ -173,16 +173,15 @@ class BuildState:
             # Download package with source code
             print(f'Downloading {filename}')
 
-            response = urllib.request.urlopen(url)
+            with urllib.request.urlopen(url) as response:
+                try:
+                    with open(filepath, 'wb') as f:
+                        data = response.read()
+                        f.write(data)
 
-            try:
-                with open(filepath, 'wb') as f:
-                    data = response.read()
-                    f.write(data)
-
-            except IOError:
-                os.unlink(filepath)
-                raise
+                except IOError:
+                    os.unlink(filepath)
+                    raise
 
         return data, filepath
 
@@ -194,7 +193,7 @@ class BuildState:
 
         if file_checksum != checksum:
             filepath.unlink()
-            raise Exception(f'Checksum of {filepath} does not match, expected: {checksum}, actual: {file_checksum}')
+            raise RuntimeError(f'Checksum of {filepath} does not match, expected: {checksum}, actual: {file_checksum}')
 
     def _unpack_source_package(self, filepath: Path) -> typing.Tuple[str, Path]:
         args = ('tar', '-tf', filepath)
@@ -215,15 +214,15 @@ class BuildState:
             if os.sep not in path:
                 need_new_directory = True
                 break
-            else:
-                current_first_path_component = path[:path.find(os.sep)]
 
-                if first_path_component:
-                    if first_path_component != current_first_path_component:
-                        need_new_directory = True
-                        break
-                else:
-                    first_path_component = current_first_path_component
+            current_first_path_component = path[:path.find(os.sep)]
+
+            if first_path_component:
+                if first_path_component != current_first_path_component:
+                    need_new_directory = True
+                    break
+            else:
+                first_path_component = current_first_path_component
 
         work_path = self.source
 
@@ -293,7 +292,7 @@ class BuildState:
         version = ''
 
         args = ('git', f'--git-dir={self.source}/.git', 'describe', '--tags')
-        git_describe = subprocess.run(args, env=self.environment, capture_output=True)
+        git_describe = subprocess.run(args, check=False, env=self.environment, capture_output=True)
 
         if git_describe.returncode == 0:
             version = git_describe.stdout.decode('ascii')
