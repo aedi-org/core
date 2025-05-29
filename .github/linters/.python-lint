@@ -1,5 +1,5 @@
 [MAIN]
-ignore-paths=aedi/packaging
+ignore=packaging
 
 [MESSAGES CONTROL]
 # C0114: Missing module docstring (missing-module-docstring)
