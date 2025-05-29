@@ -292,7 +292,7 @@ class BuildState:
         version = ''
 
         args = ('git', f'--git-dir={self.source}/.git', 'describe', '--tags')
-        git_describe = subprocess.run(args, check=False, env=self.environment, capture_output=True)
+        git_describe = subprocess.run(args, env=self.environment, capture_output=True)
 
         if git_describe.returncode == 0:
             version = git_describe.stdout.decode('ascii')

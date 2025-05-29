@@ -196,7 +196,7 @@ def apply_unified_diff(diff_path: Path, work_path: Path, environment: typing.Map
     dry_run_args = args + ['--dry-run', '--force']
 
     def dry_run():
-        return subprocess.run(dry_run_args, check=False, cwd=work_path, env=environment,
+        return subprocess.run(dry_run_args, cwd=work_path, env=environment,
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
 
     # Try to apply patch without writing changes to disk
