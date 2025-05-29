@@ -44,12 +44,11 @@ class Target:
 
     def prepare_source(self, state: BuildState):
         """ Called when target is selected by name """
-        pass
 
     def initialize(self, state: BuildState):
         """ Called on all targets except the selected one before prefix directory creation """
-        pass
 
+    # pylint: disable=unused-argument
     def detect(self, state: BuildState) -> bool:
         """
         Called when target is selected by source code directory
@@ -59,15 +58,12 @@ class Target:
 
     def configure(self, state: BuildState):
         """ Called before selected target is about to build """
-        pass
 
     def build(self, state: BuildState):
         """ Does actual build """
-        pass
 
     def post_build(self, state: BuildState):
         """ Called after selected target is built """
-        pass
 
 
 class BuildTarget(Target):
@@ -276,9 +272,6 @@ class MakeTarget(BuildTarget):
 
 
 class ConfigureMakeTarget(MakeTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         super().configure(state)
 
@@ -335,21 +328,22 @@ class CMakeTarget(BuildTarget):
             if not cmakelists_path.exists():
                 return False
 
-            for line in open(cmakelists_path).readlines():
-                project_name = CMakeTarget._extract_project_name(line)
-                if project_name:
-                    project_name = project_name.lower()
-                    project_name = project_name.replace(' ', '-')
-                    break
-            else:
-                return False
+            with open(cmakelists_path) as f:
+                for line in f.readlines():
+                    project_name = CMakeTarget._extract_project_name(line)
+                    if project_name:
+                        project_name = project_name.lower()
+                        project_name = project_name.replace(' ', '-')
+                        break
+                else:
+                    return False
 
             if project_name.startswith('lib'):
                 project_name = project_name[3:]
 
             CMakeTarget.cached_project_name = project_name
 
-        return project_name == self.name or project_name == self.project_name
+        return project_name in {self.name, self.project_name}
 
     @staticmethod
     def _extract_project_name(line: str):
@@ -468,18 +462,12 @@ class CMakeTarget(BuildTarget):
 
 
 class ConfigureMakeDependencyTarget(ConfigureMakeTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def post_build(self, state: BuildState):
         state.build_path /= self.src_root
         self.install(state)
 
 
 class ConfigureMakeSharedDependencyTarget(ConfigureMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         opts = state.options
         opts['--enable-shared'] = 'yes'
@@ -489,9 +477,6 @@ class ConfigureMakeSharedDependencyTarget(ConfigureMakeDependencyTarget):
 
 
 class ConfigureMakeStaticDependencyTarget(ConfigureMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         opts = state.options
         opts['--enable-shared'] = 'no'
@@ -501,26 +486,17 @@ class ConfigureMakeStaticDependencyTarget(ConfigureMakeDependencyTarget):
 
 
 class CMakeDependencyTarget(CMakeTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def post_build(self, state: BuildState):
         self.install(state)
 
 
 class CMakeSharedDependencyTarget(CMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['BUILD_SHARED_LIBS'] = 'YES'
         super().configure(state)
 
 
 class CMakeStaticDependencyTarget(CMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['BUILD_SHARED_LIBS'] = 'NO'
         super().configure(state)
@@ -553,9 +529,6 @@ class SingleExeCTarget(MakeTarget):
 
 
 class MesonTarget(BuildTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         super().configure(state)
 
@@ -623,18 +596,12 @@ endian = 'little'
 
 
 class MesonSharedTarget(MesonTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['default_library'] = 'shared'
         super().configure(state)
 
 
 class MesonStaticTarget(MesonTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['default_library'] = 'static'
         super().configure(state)

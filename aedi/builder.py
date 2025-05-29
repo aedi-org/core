@@ -451,7 +451,7 @@ class Builder:
         hardcopy_directories(entries, prefix_path)
 
     def _detect_target(self):
-        for name, target in self._targets.items():
+        for target in self._targets.values():
             if target.detect(self._state):
                 self._target = target
                 break
