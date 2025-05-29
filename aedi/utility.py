@@ -127,9 +127,9 @@ def hardcopy(src: Path, dst: Path) -> os.stat_result:
             # To work around these complications, use os module function directly
             os.link(src, dst)
             return src_stat
-        else:
-            shutil.copy2(src, dst)
-            return dst.stat()
+
+        shutil.copy2(src, dst)
+        return dst.stat()
 
     try:
         dst_stat = dst.stat()
@@ -187,6 +187,7 @@ def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, clean
             hardcopy_directory(src_path, dst_path)
 
 
+# pylint: disable=dangerous-default-value
 def apply_unified_diff(diff_path: Path, work_path: Path, environment: typing.Mapping = os.environ):
     if not diff_path.exists():
         raise FileNotFoundError(f'Unified diff {diff_path} was not found')
@@ -195,7 +196,7 @@ def apply_unified_diff(diff_path: Path, work_path: Path, environment: typing.Map
     dry_run_args = args + ['--dry-run', '--force']
 
     def dry_run():
-        return subprocess.run(dry_run_args, cwd=work_path, env=environment,
+        return subprocess.run(dry_run_args, check=False, cwd=work_path, env=environment,
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
 
     # Try to apply patch without writing changes to disk
@@ -205,9 +206,9 @@ def apply_unified_diff(diff_path: Path, work_path: Path, environment: typing.Map
 
         if dry_run() == 0:
             return  # patch is already applied
-        else:
-            # Direct and reversed patch applications failed, something is wrong with it
-            raise RuntimeError(f'Unified diff {diff_path} could not be applied')
+
+        # Direct and reversed patch applications failed, something is wrong with it
+        raise RuntimeError(f'Unified diff {diff_path} could not be applied')
 
     # Patch wasn't applied yet, do it now
     subprocess.run(args, check=True, cwd=work_path, env=environment)

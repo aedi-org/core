@@ -1,5 +1,5 @@
-[MASTER]
-ignore-paths=aedi/packaging/.*\.py
+[MAIN]
+ignored-modules=aedi.packaging
 
 [MESSAGES CONTROL]
 # C0114: Missing module docstring (missing-module-docstring)
