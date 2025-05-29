@@ -1,6 +1,3 @@
-[MAIN]
-ignored-modules=aedi.packaging
-
 [MESSAGES CONTROL]
 # C0114: Missing module docstring (missing-module-docstring)
 # C0115: Missing class docstring (missing-class-docstring)
