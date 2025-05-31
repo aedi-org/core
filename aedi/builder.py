@@ -173,6 +173,11 @@ class Builder(object):
             if target != self._target:
                 target.initialize(state)
 
+        if not self._target.multi_platform:
+            # Assign minimum deployment OS version to native platform
+            versions = (platform.os_version for platform in self._platforms)
+            self._platforms[0].os_version = min(versions)
+
         if arguments.build_path:
             state.build_path = Path(arguments.build_path).absolute()
         else:
