@@ -419,12 +419,15 @@ class Builder(object):
             self._merge_missing_files(src_paths, dst_path)
 
     def _sign_outputs(self):
+        state = self._state
+
+        if state.xcode:
+            return
+
         target = self._target
 
         if target.destination != Target.DESTINATION_OUTPUT:
             return
-
-        state = self._state
 
         for output in target.outputs:
             sign_args = ('codesign', '--sign', '-', '--deep', '--force', output)
