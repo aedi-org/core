@@ -370,18 +370,16 @@ class CMakeTarget(BuildTarget):
     def configure(self, state: BuildState):
         super().configure(state)
 
-        args = [
-            'cmake',
-            '-DCMAKE_BUILD_TYPE=Release',
-            f'-DCMAKE_INSTALL_PREFIX={state.install_path}',
-            f'-DCMAKE_PREFIX_PATH={state.prefix_path}',
-        ]
-
         opts = state.options
+        opts['CMAKE_BUILD_TYPE'] = 'Release'
         opts['CMAKE_C_FLAGS'] += state.compiler_flags()
         opts['CMAKE_CXX_FLAGS'] += state.compiler_flags()
         opts['CMAKE_EXE_LINKER_FLAGS'] += state.linker_flags()
+        opts['CMAKE_INSTALL_PREFIX'] = state.install_path
+        opts['CMAKE_PREFIX_PATH'] = state.prefix_path
         opts['CMAKE_SHARED_LINKER_FLAGS'] += state.linker_flags()
+
+        args = ['cmake']
 
         if state.xcode:
             args.append('-GXcode')
@@ -389,22 +387,22 @@ class CMakeTarget(BuildTarget):
             args.append('-GUnix Makefiles')
 
             if c_compiler := state.c_compiler():
-                args.append(f'-DCMAKE_C_COMPILER={c_compiler}')
+                opts['CMAKE_C_COMPILER'] = c_compiler
             if cxx_compiler := state.cxx_compiler():
-                args.append(f'-DCMAKE_CXX_COMPILER={cxx_compiler}')
+                opts['CMAKE_CXX_COMPILER'] = cxx_compiler
 
             architecture = state.architecture()
             if architecture != machine():
-                args.append('-DCMAKE_SYSTEM_NAME=Darwin')
-                args.append('-DCMAKE_SYSTEM_PROCESSOR=' + ('aarch64' if architecture == 'arm64' else architecture))
+                opts['CMAKE_SYSTEM_NAME'] = 'Darwin'
+                opts['CMAKE_SYSTEM_PROCESSOR'] = ('aarch64' if architecture == 'arm64' else architecture)
 
             sdk_path = state.sdk_path()
             if sdk_path:
-                args.append(f'-DCMAKE_OSX_SYSROOT={sdk_path}')
+                opts['CMAKE_OSX_SYSROOT'] = sdk_path
 
         os_version = state.os_version()
         if os_version:
-            args.append('-DCMAKE_OSX_DEPLOYMENT_TARGET=' + str(os_version))
+            opts['CMAKE_OSX_DEPLOYMENT_TARGET'] = os_version
 
         args += opts.to_list(CommandLineOptions.CMAKE_RULES)
         args.append(state.source / self.src_root)
