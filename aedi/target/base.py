@@ -371,7 +371,6 @@ class CMakeTarget(BuildTarget):
         super().configure(state)
 
         opts = state.options
-        opts['CMAKE_BUILD_TYPE'] = 'Release'
         opts['CMAKE_C_FLAGS'] += state.compiler_flags()
         opts['CMAKE_CXX_FLAGS'] += state.compiler_flags()
         opts['CMAKE_EXE_LINKER_FLAGS'] += state.linker_flags()
@@ -383,8 +382,10 @@ class CMakeTarget(BuildTarget):
 
         if state.xcode:
             args.append('-GXcode')
+            opts['CMAKE_BUILD_TYPE'] = 'Debug'
         else:
             args.append('-GUnix Makefiles')
+            opts['CMAKE_BUILD_TYPE'] = 'Release'
 
             if c_compiler := state.c_compiler():
                 opts['CMAKE_C_COMPILER'] = c_compiler
