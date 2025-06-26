@@ -24,8 +24,8 @@ from . import base
 
 
 class BuildPrefix(base.Target):
-    def __init__(self, name='build-prefix'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('build-prefix')
 
 
 class CleanTarget(base.Target):
@@ -47,16 +47,16 @@ class CleanAllTarget(CleanTarget):
 
 
 class CleanDepsTarget(CleanAllTarget):
-    def __init__(self, name='clean-deps'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('clean-deps')
 
     def configure(self, state: BuildState):
         self.args += (state.deps_path,)
 
 
 class TestDepsTarget(base.BuildTarget):
-    def __init__(self, name='test-deps'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('test-deps')
         self.multi_platform = False
 
     def build(self, state: BuildState):

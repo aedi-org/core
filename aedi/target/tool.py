@@ -27,8 +27,8 @@ from . import base
 
 
 class CMakeTarget(base.CMakeTarget):
-    def __init__(self, name='cmake'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('cmake')
 
     def prepare_source(self, state: BuildState):
         state.download_source(
@@ -60,8 +60,8 @@ class CMakeTarget(base.CMakeTarget):
 
 
 class GmakeTarget(base.ConfigureMakeDependencyTarget):
-    def __init__(self, name='gmake'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('gmake')
 
     def prepare_source(self, state: BuildState):
         state.download_source(
@@ -84,8 +84,8 @@ class GmakeTarget(base.ConfigureMakeDependencyTarget):
 
 
 class MesonTarget(base.BuildTarget):
-    def __init__(self, name='meson'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('meson')
         self.multi_platform = False
 
     def prepare_source(self, state: BuildState):
@@ -109,8 +109,8 @@ class MesonTarget(base.BuildTarget):
 
 
 class NasmTarget(base.ConfigureMakeDependencyTarget):
-    def __init__(self, name='nasm'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('nasm')
 
     def prepare_source(self, state: BuildState):
         state.download_source(
@@ -124,8 +124,8 @@ class NasmTarget(base.ConfigureMakeDependencyTarget):
 
 
 class NinjaTarget(base.CMakeStaticDependencyTarget):
-    def __init__(self, name='ninja'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('ninja')
 
     def prepare_source(self, state: BuildState):
         state.download_source(
@@ -138,8 +138,8 @@ class NinjaTarget(base.CMakeStaticDependencyTarget):
 
 
 class PkgconfTarget(base.ConfigureMakeStaticDependencyTarget):
-    def __init__(self, name='pkgconf'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('pkgconf')
 
     def prepare_source(self, state: BuildState):
         state.download_source(
@@ -167,8 +167,8 @@ class PkgconfTarget(base.ConfigureMakeStaticDependencyTarget):
 
 
 class YasmTarget(base.ConfigureMakeDependencyTarget):
-    def __init__(self, name='yasm'):
-        super().__init__(name)
+    def __init__(self):
+        super().__init__('yasm')
 
     def prepare_source(self, state: BuildState):
         state.download_source(

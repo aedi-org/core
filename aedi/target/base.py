@@ -276,9 +276,6 @@ class MakeTarget(BuildTarget):
 
 
 class ConfigureMakeTarget(MakeTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         super().configure(state)
 
@@ -467,18 +464,12 @@ class CMakeTarget(BuildTarget):
 
 
 class ConfigureMakeDependencyTarget(ConfigureMakeTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def post_build(self, state: BuildState):
         state.build_path /= self.src_root
         self.install(state)
 
 
 class ConfigureMakeSharedDependencyTarget(ConfigureMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         opts = state.options
         opts['--enable-shared'] = 'yes'
@@ -488,9 +479,6 @@ class ConfigureMakeSharedDependencyTarget(ConfigureMakeDependencyTarget):
 
 
 class ConfigureMakeStaticDependencyTarget(ConfigureMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         opts = state.options
         opts['--enable-shared'] = 'no'
@@ -500,26 +488,17 @@ class ConfigureMakeStaticDependencyTarget(ConfigureMakeDependencyTarget):
 
 
 class CMakeDependencyTarget(CMakeTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def post_build(self, state: BuildState):
         self.install(state)
 
 
 class CMakeSharedDependencyTarget(CMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['BUILD_SHARED_LIBS'] = 'YES'
         super().configure(state)
 
 
 class CMakeStaticDependencyTarget(CMakeDependencyTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['BUILD_SHARED_LIBS'] = 'NO'
         super().configure(state)
@@ -552,9 +531,6 @@ class SingleExeCTarget(MakeTarget):
 
 
 class MesonTarget(BuildTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         super().configure(state)
 
@@ -622,18 +598,12 @@ endian = 'little'
 
 
 class MesonSharedTarget(MesonTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['default_library'] = 'shared'
         super().configure(state)
 
 
 class MesonStaticTarget(MesonTarget):
-    def __init__(self, name=None):
-        super().__init__(name)
-
     def configure(self, state: BuildState):
         state.options['default_library'] = 'static'
         super().configure(state)
