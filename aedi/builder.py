@@ -124,16 +124,23 @@ class MachOFixer:
 
             if name.is_symlink():
                 continue
-            elif name.is_dir():
+
+            if name.is_dir():
                 self._fix_dir(subpath)
             else:
                 self._fix_file(subpath)
 
 
-class Builder(object):
+class Builder:
     def __init__(self):
         self.argparser = argparse.ArgumentParser()
         self.targets = targets()
+
+        self._environment = None
+        self._platforms = []
+        self._state = None
+        self._target = None
+        self._targets = None
 
     def _create_state(self, args: list):
         self._targets = CaseInsensitiveDict({target.name: target for target in self.targets})
@@ -143,7 +150,6 @@ class Builder(object):
         state.xcode = arguments.xcode
         state.verbose = arguments.verbose
 
-        self._platforms: typing.List[TargetPlatform] = []
         self._populate_platforms(arguments)
 
         state.platform = self._platforms[0]
@@ -199,6 +205,7 @@ class Builder(object):
 
     def _populate_platforms(self, arguments):
         state = self._state
+        os_version = None
 
         def adjust_sdk_path(path: str) -> typing.Union[Path, None]:
             if path:
@@ -378,7 +385,7 @@ class Builder(object):
             shutil.copy(src_sub_paths[0], dst_path)
 
     def _merge_missing_files(self, src_paths: typing.Sequence[Path], dst_path: Path):
-        shifted_src_paths = [path for path in src_paths]
+        shifted_src_paths = list(src_paths)
         last_path_index = len(src_paths) - 1
 
         for _ in range(last_path_index):
@@ -452,9 +459,9 @@ class Builder(object):
         hardcopy_directories(entries, prefix_path)
 
     def _detect_target(self):
-        for name, target in self._targets.items():
+        for target in self._targets.values():
             if target.detect(self._state):
-                self._target = self._targets[name]
+                self._target = target
                 break
 
         assert self._target
