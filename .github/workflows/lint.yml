@@ -23,7 +23,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USE_FIND_ALGORITHM: true
           VALIDATE_CHECKOV: false
-          VALIDATE_JSCPD: false
           VALIDATE_GIT_COMMITLINT: false
           VALIDATE_MARKDOWN_PRETTIER: false
           VALIDATE_NATURAL_LANGUAGE: false
