@@ -115,16 +115,14 @@ class BuildTarget(Target):
         self.update_config_scripts(state)
 
     @staticmethod
-    def update_text_file(path: Path, processor: typing.Optional[typing.Callable] = None):
+    def update_text_file(path: Path, processor: typing.Callable):
         with open(path, 'r') as f:
             content = f.readlines()
 
         patched_content = []
 
         for line in content:
-            patched_line = processor(line) if processor else line
-
-            if patched_line:
+            if patched_line := processor(line):
                 patched_content.append(patched_line)
 
         if content == patched_content:
