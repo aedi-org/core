@@ -196,6 +196,8 @@ class BuildState:
             raise RuntimeError(f'Checksum of {filepath} does not match, expected: {checksum}, actual: {file_checksum}')
 
     def _unpack_source_package(self, filepath: Path) -> typing.Tuple[str, Path]:
+        print(f'Reading {filepath.name}')
+
         args = ('tar', '-tf', filepath)
         result = subprocess.run(args, check=True, env=self.environment, stdout=subprocess.PIPE)
 
@@ -236,6 +238,8 @@ class BuildState:
         extract_path = self.source / first_path_component
 
         if not extract_path.exists():
+            print(f'Extracting {filepath.name}')
+
             os.makedirs(work_path, exist_ok=True)
 
             # Extract source code package
