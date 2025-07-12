@@ -455,7 +455,7 @@ class Builder:
         os.makedirs(prefix_path, exist_ok=True)
 
         def list_dir(path: Path):
-            return [e for e in path.iterdir() if not str(e).endswith('.gitignore')]
+            return [entry for entry in path.iterdir() if entry.is_dir()]
 
         entries = list_dir(core_deps_path)
 
