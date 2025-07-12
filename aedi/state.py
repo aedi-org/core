@@ -226,6 +226,9 @@ class BuildState:
 
         work_path = self.source
 
+        if first_path_component == '.':
+            need_new_directory = True
+
         if need_new_directory:
             first_path_component = Path(filepath.name).stem
             work_path /= first_path_component
