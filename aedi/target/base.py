@@ -34,6 +34,8 @@ class Target:
     DESTINATION_DEPS = 0
     DESTINATION_OUTPUT = 1
 
+    INSTALL_PREFIX = '/usr/local'
+
     def __init__(self, name=None):
         self.name = name
         self.destination = self.DESTINATION_DEPS
@@ -109,7 +111,27 @@ class BuildTarget(Target):
         args = [tool]
         args += options and options.to_list() or ['install']
 
-        subprocess.run(args, check=True, cwd=state.build_path, env=state.environment)
+        install_path = state.install_path
+        environment = state.environment
+        environment['DESTDIR'] = install_path
+
+        subprocess.run(args, check=True, cwd=state.build_path, env=environment)
+
+        # Move everything to exclude INSTALL_PREFIX from directory tree
+        destdir_path = install_path / self.INSTALL_PREFIX[1:]
+
+        for path in destdir_path.iterdir():
+            shutil.move(path, install_path)
+
+        while True:
+            parent = destdir_path.parent
+
+            if parent == install_path:
+                break
+
+            destdir_path = parent
+
+        shutil.rmtree(destdir_path)
 
         self.update_pc_files(state)
         self.update_config_scripts(state)
@@ -139,7 +161,7 @@ class BuildTarget(Target):
                               processor: typing.Optional[typing.Callable] = None):
         prefix = 'prefix='
         install_path = str(state.install_path)
-        prefix_path = str(state.prefix_path)
+        prefix_path = self.INSTALL_PREFIX
         variable_file = Path()
 
         def process(line: str) -> str:
@@ -278,7 +300,7 @@ class ConfigureMakeTarget(MakeTarget):
 
         common_args = [
             configure_path,
-            f'--prefix={state.install_path}',
+            f'--prefix={self.INSTALL_PREFIX}',
         ]
         common_args += state.options.to_list()
 
@@ -366,7 +388,7 @@ class CMakeTarget(BuildTarget):
         opts['CMAKE_C_FLAGS'] += state.compiler_flags()
         opts['CMAKE_CXX_FLAGS'] += state.compiler_flags()
         opts['CMAKE_EXE_LINKER_FLAGS'] += state.linker_flags()
-        opts['CMAKE_INSTALL_PREFIX'] = state.install_path
+        opts['CMAKE_INSTALL_PREFIX'] = self.INSTALL_PREFIX
         opts['CMAKE_PREFIX_PATH'] = state.prefix_path
         opts['CMAKE_SHARED_LINKER_FLAGS'] += state.linker_flags()
 
@@ -532,7 +554,7 @@ class MesonTarget(BuildTarget):
         args = [
             state.bin_path / 'meson',
             'setup',
-            f'--prefix={state.install_path}',
+            f'--prefix={self.INSTALL_PREFIX}',
             '--buildtype=release',
         ]
 
