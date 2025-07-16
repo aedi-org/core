@@ -66,14 +66,13 @@ class CommandLineOptions(dict):
 
 
 class TargetPlatform:
-    def __init__(self, architecture: str, host: str, os_version: typing.Union[str, StrictVersion],
-                 sdk_path: Path, prefix_path: Path):
+    def __init__(self, architecture: str, host: str, os_version: typing.Union[str, StrictVersion], sdk_path: Path):
         self.architecture = architecture
         self.host = host
         self.os_version = os_version if isinstance(os_version, StrictVersion) else StrictVersion(os_version)
         self.sdk_path = sdk_path
-        self.c_compiler = prefix_path / f'bin/{host}-gcc'
-        self.cxx_compiler = prefix_path / f'bin/{host}-g++'
+        self.c_compiler = host + '-gcc'
+        self.cxx_compiler = host + '-g++'
 
 
 def remove_empty_directories(path: Path) -> int:

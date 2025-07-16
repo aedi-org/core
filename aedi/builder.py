@@ -218,14 +218,14 @@ class Builder:
             os_version = Version(arguments.os_version_x64) if arguments.os_version_x64 else OS_VERSION_X86_64
             assert os_version >= OS_VERSION_X86_64, f'macOS {os_version} is not supported'
             sdk_path = adjust_sdk_path(arguments.sdk_path_x64)
-            platform = TargetPlatform('x86_64', 'x86_64-apple-darwin', os_version, sdk_path, state.prefix_path)
+            platform = TargetPlatform('x86_64', 'x86_64-apple-darwin', os_version, sdk_path)
             self._platforms.append(platform)
 
         if not arguments.disable_arm:
             os_version = Version(arguments.os_version_arm) if arguments.os_version_arm else OS_VERSION_ARM64
             assert os_version >= OS_VERSION_ARM64, f'macOS {os_version} is not supported'
             sdk_path = adjust_sdk_path(arguments.sdk_path_arm)
-            platform = TargetPlatform('arm64', 'aarch64-apple-darwin', os_version, sdk_path, state.prefix_path)
+            platform = TargetPlatform('arm64', 'aarch64-apple-darwin', os_version, sdk_path)
             self._platforms.append(platform)
 
         assert len(self._platforms) > 0
