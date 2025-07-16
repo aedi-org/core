@@ -71,14 +71,6 @@ class GmakeTarget(base.ConfigureMakeDependencyTarget):
     def detect(self, state: BuildState) -> bool:
         return state.has_source_file('doc/make.1')
 
-    def configure(self, state: BuildState):
-        opts = state.options
-        opts['--datarootdir'] = '/usr/local/share'
-        opts['--includedir'] = '/usr/local/include'
-        opts['--libdir'] = '/usr/local/lib'
-
-        super().configure(state)
-
     def post_build(self, state: BuildState):
         self.copy_to_bin(state, 'make', self.name)
 
