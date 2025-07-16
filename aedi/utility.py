@@ -58,7 +58,7 @@ class CommandLineOptions(dict):
                 arg_value = arg_value if arg_value else ''
                 option = f'-D{arg_name}={arg_value}'
             else:
-                assert False, 'Unknown argument rules'
+                raise RuntimeError('Unknown argument rules')
 
             result.append(option)
 
