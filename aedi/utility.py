@@ -88,9 +88,9 @@ def remove_empty_directories(path: Path) -> int:
 
     if count == removed:
         os.rmdir(path)
-        removed = 1
+        return 1
 
-    return removed
+    return 0
 
 
 def symlink_directory(src_path: Path, dst_path: Path, cleanup=True):
