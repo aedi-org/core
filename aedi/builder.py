@@ -283,22 +283,31 @@ class Builder:
 
     def _build_prerequisites(self):
         target = self._target
+        dependencies = target.prerequisites
 
-        if not target.prerequisites:
+        if not dependencies:
             return
 
         deps_path = self._state.deps_path
         need_update_prefix = False
 
-        for prerequisite in target.prerequisites:
+        def build_prerequisite(prerequisite: str) -> bool:
             if (deps_path / prerequisite).exists():
-                continue
+                return False
 
             prerequisite_builder = Builder()
             prerequisite_builder.targets = self.targets
             prerequisite_builder.run([f'--target={prerequisite}'])
 
-            need_update_prefix = True
+            return True
+
+        if isinstance(dependencies, str):
+            need_update_prefix |= build_prerequisite(dependencies)
+        elif isinstance(dependencies, (tuple, list)):
+            for dependency in dependencies:
+                need_update_prefix |= build_prerequisite(dependency)
+        else:
+            assert False
 
         if need_update_prefix:
             self._create_prefix_directory()
