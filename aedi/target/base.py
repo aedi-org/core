@@ -552,7 +552,7 @@ class MesonTarget(BuildTarget):
         super().configure(state)
 
         args = [
-            state.bin_path / 'meson',
+            str(state.bin_path / 'meson'),
             'setup',
             f'--prefix={self.INSTALL_PREFIX}',
             '--buildtype=release',
