@@ -17,11 +17,10 @@
 #
 
 import os
-import pathlib
 import platform
 import subprocess
-import zipapp
 
+from .. import utility
 from ..state import BuildState
 from . import base
 
@@ -89,15 +88,12 @@ class MesonTarget(base.BuildTarget):
         return state.has_source_file('meson.py')
 
     def post_build(self, state: BuildState):
-        dest_path = state.install_path / 'bin'
-        os.makedirs(dest_path)
+        install_path = state.install_path / 'bin'
+        install_path.mkdir(parents=True)
 
-        def directory_filter(path: pathlib.Path) -> bool:
-            return path.parts[0].startswith('mesonbuild')
-
-        zipapp.create_archive(source=state.source, target=dest_path / self.name,
-                              interpreter='/usr/bin/env python3', main='mesonbuild.mesonmain:main',
-                              filter=directory_filter, compressed=True)
+        source_path = state.source
+        utility.hardcopy_directory(source_path / 'mesonbuild', state.install_path / 'lib/python/mesonbuild')
+        utility.hardcopy(source_path / 'meson.py', install_path / 'meson')
 
 
 class NasmTarget(base.ConfigureMakeDependencyTarget):
