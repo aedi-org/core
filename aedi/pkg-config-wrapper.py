@@ -36,7 +36,24 @@ def _write_log(message: str):
 
 
 def _main():
-    args = sys.argv[1:]
+    args = []
+    skip_arg = False
+
+    # Skip options injected by PyCharm
+    # These options start with absolute path to pydevd.py
+    # and end with --file /path/to/this/file
+    for arg in sys.argv[1:]:
+        if skip_arg:
+            if arg.endswith('/pkg-config'):
+                skip_arg = False
+
+            continue
+
+        if arg.endswith('/pydevd.py'):
+            skip_arg = True
+
+        if not skip_arg:
+            args.append(arg)
 
     cmdline = ' '.join(map(shlex.quote, args))
     _write_log(f'% pkg-config {cmdline}\n')
