@@ -165,6 +165,9 @@ class YasmTarget(base.CMakeDependencyTarget):
             'https://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz',
             '3dce6601b495f5b3d45b59f7d2492a340ee7e84b5beca17e48f862502bd5603f')
 
+        # Set deterministic build date of the corresponding tagged commit
+        state.set_build_datetime(2014, 8, 10, 23, 18, 58)
+
     def configure(self, state: BuildState):
         opts = state.options
         opts['CMAKE_OSX_ARCHITECTURES'] = 'x86_64;arm64'
