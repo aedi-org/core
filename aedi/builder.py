@@ -88,7 +88,8 @@ class MachOFixer:
         with open(path, 'rb') as f:
             header = f.read(4)
 
-        if header != _MACHO_MAGIC:
+        # Handle Mach-O executable and Mach-O universal binary
+        if header not in (_MACHO_MAGIC, b'\xca\xfe\xba\xbe'):
             return
 
         otool_args = ('otool', '-l', path)
