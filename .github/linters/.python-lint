@@ -1,3 +1,6 @@
+[MASTER]
+init-hook='import sys; sys.path.append("core")'
+
 [MESSAGES CONTROL]
 # C0103: Module name "..." doesn't conform to snake_case naming style (invalid-name)
 # C0114: Missing module docstring (missing-module-docstring)
