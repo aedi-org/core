@@ -43,6 +43,7 @@ _MACHO_MAGIC = b'\xcf\xfa\xed\xfe'
 
 class MachOFixer:
     _DESIRED_RPATH = '@loader_path/../lib'
+    _EXCLUDED_SUFFIXES = {'.a', '.cmake', '.h', '.hxx', '.o', '.pc'}
 
     def __init__(self, state: BuildState):
         self.state = state
@@ -85,6 +86,9 @@ class MachOFixer:
             self.is_rpath_set = True
 
     def _fix_file(self, path: Path):
+        if path.suffix in self._EXCLUDED_SUFFIXES:
+            return
+
         with open(path, 'rb') as f:
             header = f.read(4)
 
