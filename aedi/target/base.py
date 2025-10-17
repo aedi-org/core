@@ -428,7 +428,7 @@ class CMakeTarget(BuildTarget):
         if state.xcode:
             args = ['cmake', '--open', '.']
         else:
-            args = ['make', '-j', state.jobs]
+            args = ['cmake', '--build', '.', '--parallel', state.jobs]
 
             if state.verbose:
                 args.append('VERBOSE=1')
@@ -506,7 +506,11 @@ class ConfigureMakeStaticDependencyTarget(ConfigureMakeDependencyTarget):
 
 class CMakeDependencyTarget(CMakeTarget):
     def post_build(self, state: BuildState):
-        self.install(state)
+        opts = CommandLineOptions()
+        opts['--install'] = None
+        opts['.'] = None
+
+        self.install(state, opts, tool='cmake')
 
 
 class CMakeSharedDependencyTarget(CMakeDependencyTarget):
