@@ -337,6 +337,8 @@ class CMakeTarget(BuildTarget):
 
     def __init__(self, name=None):
         super().__init__(name)
+
+        self.generator = None
         self.project_name = None
 
     def detect(self, state: BuildState) -> bool:
@@ -398,7 +400,9 @@ class CMakeTarget(BuildTarget):
             args.append('-GXcode')
             opts['CMAKE_BUILD_TYPE'] = 'Debug'
         else:
-            args.append('-GUnix Makefiles')
+            if self.generator:
+                args.append(f'-G{self.generator}')
+
             opts['CMAKE_BUILD_TYPE'] = 'Release'
 
             if c_compiler := state.c_compiler():
