@@ -27,7 +27,7 @@ from pathlib import Path
 from platform import machine
 
 from ..state import BuildState
-from ..utility import CommandLineOptions, hardcopy, symlink_directory
+from ..utility import CommandLineOptions, hardcopy, hardcopy_directory
 
 
 class Target:
@@ -270,7 +270,7 @@ class MakeTarget(BuildTarget):
     def configure(self, state: BuildState):
         super().configure(state)
 
-        symlink_directory(state.source, state.build_path)
+        hardcopy_directory(state.source, state.build_path)
 
     def build(self, state: BuildState):
         assert not state.xcode
