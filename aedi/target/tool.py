@@ -130,8 +130,8 @@ class PkgconfTarget(base.ConfigureMakeStaticDependencyTarget):
 
     def prepare_source(self, state: BuildState):
         state.download_source(
-            'https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz',
-            '51203d99ed573fa7344bf07ca626f10c7cc094e0846ac4aa0023bd0c83c25a41')
+            'https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz',
+            'cd05c9589b9f86ecf044c10a2269822bc9eb001eced2582cfffd658b0a50c243')
 
     def detect(self, state: BuildState) -> bool:
         return state.has_source_file('libpkgconf/libpkgconf.h')
