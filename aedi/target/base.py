@@ -387,6 +387,7 @@ class CMakeTarget(BuildTarget):
         super().configure(state)
 
         opts = state.options
+        opts['BUILD_TESTING'] = 'NO'
         opts['CMAKE_C_FLAGS'] += state.compiler_flags()
         opts['CMAKE_CXX_FLAGS'] += state.compiler_flags()
         opts['CMAKE_EXE_LINKER_FLAGS'] += state.linker_flags()

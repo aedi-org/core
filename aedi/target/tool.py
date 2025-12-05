@@ -119,10 +119,6 @@ class NinjaTarget(base.CMakeStaticDependencyTarget):
             'https://github.com/ninja-build/ninja/archive/refs/tags/v1.12.1.tar.gz',
             '821bdff48a3f683bc4bb3b6f0b5fe7b2d647cf65d52aeb63328c91a6c6df285a')
 
-    def configure(self, state: BuildState):
-        state.options['BUILD_TESTING'] = 'NO'
-        super().configure(state)
-
 
 class PkgconfTarget(base.ConfigureMakeStaticDependencyTarget):
     def __init__(self):
