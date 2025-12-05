@@ -259,7 +259,7 @@ Cflags: -I${{includedir}} {cflags}
 
         src_path = state.build_path / filename
         dst_path = bin_path / new_filename
-        shutil.copy(src_path, dst_path)
+        shutil.copy(src_path, dst_path, follow_symlinks=False)
 
 
 class MakeTarget(BuildTarget):
