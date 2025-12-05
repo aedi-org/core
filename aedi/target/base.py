@@ -138,8 +138,12 @@ class BuildTarget(Target):
 
     @staticmethod
     def update_text_file(path: Path, processor: typing.Callable):
-        with open(path, 'r') as f:
-            content = f.readlines()
+        try:
+            with open(path, 'r') as f:
+                content = f.readlines()
+        except UnicodeDecodeError:
+            print(f'WARNING: {path} seems to be a binary file')
+            return
 
         patched_content = []
 
