@@ -117,23 +117,23 @@ def symlink_directory(src_path: Path, dst_path: Path, cleanup=True):
 
 
 def hardcopy(src: Path, dst: Path) -> os.stat_result:
-    src_stat = src.stat()
+    src_stat = src.lstat()
 
     def hardlink_or_copy(target_stat: os.stat_result) -> os.stat_result:
         if src_stat.st_dev == target_stat.st_dev:
             # Path.link_to() was deprecated in Python 3.10, and it was removed in 3.12
             # Since Python 3.10, Path.hardlink_to() should be used instead
             # To work around these complications, use os module function directly
-            os.link(src, dst)
+            os.link(src, dst, follow_symlinks=False)
             return src_stat
 
         shutil.copy2(src, dst)
-        return dst.stat()
+        return dst.lstat()
 
     try:
-        dst_stat = dst.stat()
+        dst_stat = dst.lstat()
     except FileNotFoundError:
-        return hardlink_or_copy(dst.parent.stat())
+        return hardlink_or_copy(dst.parent.lstat())
 
     is_samefile = (os.path.samestat(src_stat, dst_stat)
                    or (src_stat.st_dev != dst_stat.st_dev
@@ -166,7 +166,7 @@ def _unlink_missing(path: Path, seen_inos: set[int]):
         for subpath in path.iterdir():
             _unlink_missing(subpath, seen_inos)
     else:
-        if os.stat(path).st_ino not in seen_inos:
+        if os.lstat(path).st_ino not in seen_inos:
             os.unlink(path)
 
 
