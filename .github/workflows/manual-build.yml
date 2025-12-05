@@ -39,7 +39,7 @@ jobs:
     name: ${{ inputs.target }}
     runs-on: ${{ inputs.runner-os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: 'recursive'
 
@@ -71,7 +71,7 @@ jobs:
           ${BUILD_CMDLINE}
 
       - name: Upload Package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ inputs.target }}
           path: |
@@ -79,9 +79,9 @@ jobs:
             output/${{ inputs.target }}
           if-no-files-found: ignore
 
-      - name: List Build Directory
+      - name: List files
         if: always()
         run: |
           git status
-          ls -lR .
+          ls -lR
 ...
