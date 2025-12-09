@@ -116,24 +116,25 @@ def symlink_directory(src_path: Path, dst_path: Path, cleanup=True):
                 os.symlink(entry, dst_subpath)
 
 
-def hardcopy(src: Path, dst: Path) -> os.stat_result:
-    src_stat = src.lstat()
+def hardcopy(src: Path, dst: Path, follow_symlinks=True) -> os.stat_result:
+    stat = Path.stat if follow_symlinks else Path.lstat
+    src_stat = stat(src)
 
     def hardlink_or_copy(target_stat: os.stat_result) -> os.stat_result:
         if src_stat.st_dev == target_stat.st_dev:
             # Path.link_to() was deprecated in Python 3.10, and it was removed in 3.12
             # Since Python 3.10, Path.hardlink_to() should be used instead
             # To work around these complications, use os module function directly
-            os.link(src, dst, follow_symlinks=False)
+            os.link(src, dst, follow_symlinks=follow_symlinks)
             return src_stat
 
-        shutil.copy2(src, dst)
-        return dst.lstat()
+        shutil.copy2(src, dst, follow_symlinks=follow_symlinks)
+        return stat(dst)
 
     try:
-        dst_stat = dst.lstat()
+        dst_stat = stat(dst)
     except FileNotFoundError:
-        return hardlink_or_copy(dst.parent.lstat())
+        return hardlink_or_copy(stat(dst.parent))
 
     is_samefile = (os.path.samestat(src_stat, dst_stat)
                    or (src_stat.st_dev != dst_stat.st_dev
@@ -148,14 +149,14 @@ def hardcopy(src: Path, dst: Path) -> os.stat_result:
     return hardlink_or_copy(dst_stat)
 
 
-def hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: typing.Optional[set[int]] = None):
+def hardcopy_directory(src_path: Path, dst_path: Path, seen_inos: typing.Optional[set[int]] = None, follow_symlinks=True):
     for entry in src_path.iterdir():
         dst_subpath = dst_path / entry.name
         if entry.is_dir():
             os.makedirs(dst_subpath, exist_ok=True)
-            hardcopy_directory(entry, dst_subpath, seen_inos)
+            hardcopy_directory(entry, dst_subpath, seen_inos, follow_symlinks=follow_symlinks)
         else:
-            ino = hardcopy(entry, dst_subpath).st_ino
+            ino = hardcopy(entry, dst_subpath, follow_symlinks=follow_symlinks).st_ino
 
             if seen_inos is not None:
                 seen_inos.add(ino)
@@ -170,12 +171,12 @@ def _unlink_missing(path: Path, seen_inos: set[int]):
             os.unlink(path)
 
 
-def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, cleanup=True):
+def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, cleanup=True, follow_symlinks=True):
     if cleanup:
         seen_inos: set[int] = set()
 
         for src_path in src_paths:
-            hardcopy_directory(src_path, dst_path, seen_inos)
+            hardcopy_directory(src_path, dst_path, seen_inos, follow_symlinks)
 
         for path in dst_path.iterdir():
             _unlink_missing(path, seen_inos)
@@ -183,7 +184,7 @@ def hardcopy_directories(src_paths: typing.Sequence[Path], dst_path: Path, clean
         remove_empty_directories(dst_path)
     else:
         for src_path in src_paths:
-            hardcopy_directory(src_path, dst_path)
+            hardcopy_directory(src_path, dst_path, follow_symlinks=follow_symlinks)
 
 
 # pylint: disable=dangerous-default-value

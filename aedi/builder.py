@@ -478,7 +478,7 @@ class Builder:
         if core_deps_path != deps_path:
             entries += list_dir(deps_path)
 
-        hardcopy_directories(entries, prefix_path)
+        hardcopy_directories(entries, prefix_path, follow_symlinks=False)
 
     def _detect_target(self):
         for target in self._targets.values():

@@ -274,7 +274,7 @@ class MakeTarget(BuildTarget):
     def configure(self, state: BuildState):
         super().configure(state)
 
-        hardcopy_directory(state.source, state.build_path)
+        hardcopy_directory(state.source, state.build_path, follow_symlinks=False)
 
     def build(self, state: BuildState):
         assert not state.xcode
