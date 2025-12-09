@@ -358,6 +358,8 @@ class Builder:
 
         self._merge_install_paths(install_paths, base_install_path)
 
+        state.install_path = base_install_path
+
     @staticmethod
     def _compare_files(paths: typing.Sequence[Path]) -> bool:
         content = None
