@@ -117,21 +117,23 @@ class BuildTarget(Target):
 
         subprocess.run(args, check=True, cwd=state.build_path, env=environment)
 
-        # Move everything to exclude INSTALL_PREFIX from directory tree
+        # Move everything to exclude INSTALL_PREFIX from directory tree when DESTDIR is supported
+        # If not, assume that everything is in install path itself, i.e., there is no prefix
         destdir_path = install_path / self.INSTALL_PREFIX[1:]
 
-        for path in destdir_path.iterdir():
-            shutil.move(path, install_path)
+        if destdir_path.exists():
+            for path in destdir_path.iterdir():
+                shutil.move(path, install_path)
 
-        while True:
-            parent = destdir_path.parent
+            while True:
+                parent = destdir_path.parent
 
-            if parent == install_path:
-                break
+                if parent == install_path:
+                    break
 
-            destdir_path = parent
+                destdir_path = parent
 
-        shutil.rmtree(destdir_path)
+            shutil.rmtree(destdir_path)
 
         self.update_pc_files(state)
         self.update_config_scripts(state)
