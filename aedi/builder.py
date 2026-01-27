@@ -212,6 +212,11 @@ class Builder:
         state = self._state
         os_version = None
 
+        x64 = 'x86_64'
+        arm = 'arm64'
+        native_arch = machine()
+        native_only = arguments.native
+
         def adjust_sdk_path(path: str) -> typing.Union[Path, None]:
             if path:
                 return Path(path).absolute()
@@ -219,32 +224,30 @@ class Builder:
             sdk_probe_path = state.root_path / 'sdk' / f'MacOSX{os_version}.sdk'
             return sdk_probe_path if sdk_probe_path.exists() else None
 
-        if not arguments.disable_x64:
+        if (native_only and native_arch == x64) or (not native_only and not arguments.disable_x64):
             os_version = Version(arguments.os_version_x64) if arguments.os_version_x64 else OS_VERSION_X86_64
             assert os_version >= OS_VERSION_X86_64, f'macOS {os_version} is not supported'
             sdk_path = adjust_sdk_path(arguments.sdk_path_x64)
-            platform = TargetPlatform('x86_64', 'x86_64-apple-darwin', os_version, sdk_path)
+            platform = TargetPlatform(x64, 'x86_64-apple-darwin', os_version, sdk_path)
             self._platforms.append(platform)
 
-        if not arguments.disable_arm:
+        if (native_only and native_arch == arm) or (not native_only and not arguments.disable_arm):
             os_version = Version(arguments.os_version_arm) if arguments.os_version_arm else OS_VERSION_ARM64
             assert os_version >= OS_VERSION_ARM64, f'macOS {os_version} is not supported'
             sdk_path = adjust_sdk_path(arguments.sdk_path_arm)
-            platform = TargetPlatform('arm64', 'aarch64-apple-darwin', os_version, sdk_path)
+            platform = TargetPlatform(arm, 'aarch64-apple-darwin', os_version, sdk_path)
             self._platforms.append(platform)
 
         assert len(self._platforms) > 0
 
         # Put native platform first in the list of platforms
-        if self._platforms[0].architecture == machine():
-            return
-
-        for platform in self._platforms:
-            if platform.architecture == machine():
-                native_platform = platform
-                self._platforms.remove(platform)
-                self._platforms.insert(0, native_platform)
-                break
+        if self._platforms[0].architecture != native_arch:
+            for platform in self._platforms:
+                if platform.architecture == native_arch:
+                    native_platform = platform
+                    self._platforms.remove(platform)
+                    self._platforms.insert(0, native_platform)
+                    break
 
     def run(self, args: list):
         self._create_state(args)
@@ -507,6 +510,7 @@ class Builder:
         excl_group = parser.add_mutually_exclusive_group()
         excl_group.add_argument('--disable-x64', action='store_true', help='disable x86_64 support')
         excl_group.add_argument('--disable-arm', action='store_true', help='disable ARM64 support')
+        excl_group.add_argument('--native', action='store_true', help='build native architecture only')
 
         group = parser.add_argument_group('Paths')
         group.add_argument('--source-path', metavar='path',
