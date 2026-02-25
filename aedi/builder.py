@@ -140,6 +140,8 @@ class Builder:
     def __init__(self):
         self.argparser = argparse.ArgumentParser()
         self.targets = targets()
+        self.os_version_x64 = OS_VERSION_X86_64
+        self.os_version_arm = OS_VERSION_ARM64
 
         self._environment = None
         self._platforms = []
@@ -225,14 +227,14 @@ class Builder:
             return sdk_probe_path if sdk_probe_path.exists() else None
 
         if (native_only and native_arch == x64) or (not native_only and not arguments.disable_x64):
-            os_version = Version(arguments.os_version_x64) if arguments.os_version_x64 else OS_VERSION_X86_64
+            os_version = Version(arguments.os_version_x64) if arguments.os_version_x64 else self.os_version_x64
             assert os_version >= OS_VERSION_X86_64, f'macOS {os_version} is not supported'
             sdk_path = adjust_sdk_path(arguments.sdk_path_x64)
             platform = TargetPlatform(x64, 'x86_64-apple-darwin', os_version, sdk_path)
             self._platforms.append(platform)
 
         if (native_only and native_arch == arm) or (not native_only and not arguments.disable_arm):
-            os_version = Version(arguments.os_version_arm) if arguments.os_version_arm else OS_VERSION_ARM64
+            os_version = Version(arguments.os_version_arm) if arguments.os_version_arm else self.os_version_arm
             assert os_version >= OS_VERSION_ARM64, f'macOS {os_version} is not supported'
             sdk_path = adjust_sdk_path(arguments.sdk_path_arm)
             platform = TargetPlatform(arm, 'aarch64-apple-darwin', os_version, sdk_path)
