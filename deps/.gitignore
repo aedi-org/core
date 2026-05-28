@@ -10,3 +10,6 @@
 /cmake/share/cmake-*/Licenses
 /cmake/share/emacs
 /cmake/share/vim
+/autoconf/
+/automake/
+/m4/

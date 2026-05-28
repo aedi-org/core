@@ -23,8 +23,11 @@ from .tool import *
 def targets():
     return (
         # Various build tools
+        AutoconfTarget(),
+        AutomakeTarget(),
         CMakeTarget(),
         GmakeTarget(),
+        M4Target(),
         MesonTarget(),
         NasmTarget(),
         NinjaTarget(),

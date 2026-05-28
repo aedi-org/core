@@ -25,6 +25,28 @@ from ..state import BuildState
 from . import base
 
 
+class AutoconfTarget(base.ConfigureMakeDependencyTarget):
+    def __init__(self):
+        super().__init__('autoconf')
+        self.multi_platform = False
+
+    def prepare_source(self, state: BuildState):
+        state.download_source(
+            'https://ftp.gnu.org/gnu/autoconf/autoconf-2.73.tar.gz',
+            '259ddfa3bddc799cfb81489cc0f17dfdf1bd6d1505dda53c0f45ff60d6a4f9a7')
+
+
+class AutomakeTarget(base.ConfigureMakeDependencyTarget):
+    def __init__(self):
+        super().__init__('automake')
+        self.multi_platform = False
+
+    def prepare_source(self, state: BuildState):
+        state.download_source(
+            'https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz',
+            'f01d58cd6d9d77fbdca9eb4bbd5ead1988228fdb73d6f7a201f5f8d6b118b469')
+
+
 class CMakeTarget(base.CMakeTarget):
     def __init__(self):
         super().__init__('cmake')
@@ -72,6 +94,25 @@ class GmakeTarget(base.ConfigureMakeDependencyTarget):
 
     def post_build(self, state: BuildState):
         self.copy_to_bin(state, 'make', self.name)
+
+
+class M4Target(base.ConfigureMakeDependencyTarget):
+    def __init__(self):
+        super().__init__('m4')
+        self.multi_platform = False
+
+    def prepare_source(self, state: BuildState):
+        state.download_source(
+            'https://ftp.gnu.org/gnu/m4/m4-1.4.21.tar.xz',
+            'f25c6ab51548a73a75558742fb031e0625d6485fe5f9155949d6486a2408ab66')
+
+    def configure(self, state: BuildState):
+        cstd = '-std=gnu17'
+        env = state.environment
+        env['CFLAGS'] = cstd
+        env['CPPFLAGS'] = cstd
+
+        super().configure(state)
 
 
 class MesonTarget(base.BuildTarget):
