@@ -110,7 +110,7 @@ class M4Target(base.ConfigureMakeDependencyTarget):
         cstd = '-std=gnu17'
         env = state.environment
         env['CFLAGS'] = cstd
-        env['CPPFLAGS'] = cstd
+        # env['CPPFLAGS'] = cstd
 
         super().configure(state)
 
